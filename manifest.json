@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Better MyUCLA",
+  "description": "Improvements to key MyUCLA features.",
+  "version": "0.1",
+  "icons": { 
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png" 
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://be.my.ucla.edu/IWE/mygrades.aspx"],
+      "css": ["modules/grades/grades.css"],
+      "js": ["lib/jquery-2.1.4.min.js", "lib/jquery.tmpl.min.js", "modules/grades/grades.js"]
+    }
+  ]
+}
