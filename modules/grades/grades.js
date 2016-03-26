@@ -152,6 +152,7 @@ var validateSectionWeights = function(sectionWeights) {
 	return counter == 100;
 };
 
+// Updates the final score given grades and section weights
 var updateFinalScore = function(grades, sectionWeights) {
 	var $finalScore = $('#final-score-container .score');
 
@@ -176,3 +177,11 @@ createRawScoreCalculator(parseGrades());
 $(document).on('input', '.grade-section .weight', function() {
 	updateFinalScore(parseGrades(), getSectionWeights());
 });
+
+// Ling 20 distribution:
+//
+// Mid Term - 8.75
+// Quiz     - 20
+// Final    - 26.25
+// Homework - 45
+//
