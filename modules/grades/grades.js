@@ -1,6 +1,3 @@
-var grades = parseGrades();
-createRawScoreCalculator(grades);
-
 var excludableSections = [
 	'MyUCLA Gradebook Final Grade',
 	'Official Final Grade'
@@ -11,33 +8,54 @@ var boxTemplate = '<div id="${id}" class="widget_container">' +
 	'<span>${title}</span>' +
 	'</div>' +
 	'<div style="display: block;">' +
-	'<div class="widget_content">${content}</div>' +
+	'<div class="widget_content">{{html content}}</div>' +
 	'</div>' +
 	'</div>';
 
-$.template("boxTemplate", boxTemplate);
+$.template('boxTemplate', boxTemplate);
 
+// Creates the raw score calculator widget
 var createRawScoreCalculator = function(grades) {
 	var id = 'raw-score-container';
 	var title = 'Raw Score Calculator';
 
-	$.tmpl("boxTemplate", {
+	var gradeSections = '<div>';
+
+	// Create new weight and section name for each grade section
+	Object.keys(grades).forEach(function(gradeSection) {
+		gradeSections += '<div class="grade-section clearfix" data-section="' + gradeSection + '">' + 
+			'<div class="section">' + gradeSection + '</div>' + 
+			'<div class="weight"><input type="text" value="' + (100 / Object.keys(grades).length) + '"></div>' + 
+			'</div>';
+	});
+
+	gradeSections += '<hr>';
+
+	gradeSections += '<div id="final-score-container" class="clearfix">';
+	gradeSections += '<div class="title">Final score:</div>';
+	gradeSections += '<div class="score">' + (getInitialScore(grades) * 100).toFixed(2) + '</div>';
+	gradeSections += '</div>';
+
+	gradeSections += '</div>';
+
+	$.tmpl('boxTemplate', {
 		id: id,
 		title: title,
 		content: gradeSections
-	});
+	}).appendTo('#right-sidebar');
 };
 
+// Parses the MyUCLA gradebook to a JS object
 var parseGrades = function() {
 	var parsedGrades = {};
-	var currentSection = "";
+	var currentSection = '';
 	var excluded = false;
 
 	$('#myUCLAGradesGridFoo tr').each(function(index) {
 		// Ignore first row
 		if (index > 0) {
 			// If background color is dark grey, this is a section row
-			if ($(this).css('background-color') == "rgb(208, 208, 208)") {
+			if ($(this).css('background-color') == 'rgb(208, 208, 208)') {
 				currentSection = $(this).text();
 
 				// Check if current section should be excluded
@@ -50,10 +68,10 @@ var parseGrades = function() {
 			} else {
 				// Skip assignments that are in excluded sections
 				if (excluded === false) {
-					var parsedFraction = parseGradeFraction($($(this).find("td")[1]).text());
+					var parsedFraction = parseGradeFraction($($(this).find('td')[1]).text());
 
 					parsedGrades[currentSection].push({
-						assigment: $($(this).find("td")[0]).text(),
+						assigment: $($(this).find('td')[0]).text(),
 						pointsAwarded: parsedFraction.pointsAwarded,
 						pointsTotal: parsedFraction.pointsTotal,
 						percentage: parsedFraction.percentage
@@ -94,3 +112,67 @@ var getGradeSectionTotal = function(gradeSection) {
 		overallPercentage: totalPointsAwarded / totalPointsSum
 	};
 };
+
+// Generate initial final raw score based on equal weight distribution
+var getInitialScore = function(grades) {
+	var weight = 100 / Object.keys(grades).length;
+	var score = 0;
+
+	Object.keys(grades).forEach(function(gradeSection) {
+		var gradeSectionTotal = getGradeSectionTotal(grades[gradeSection]);
+
+		score += gradeSectionTotal.overallPercentage * (weight / 100);
+	});
+
+	return score;
+};
+
+// Returns a hash of grade sections to weights
+var getSectionWeights = function() {
+	var sectionWeights = {};
+
+	$('.grade-section').each(function(index) {
+		var gradeSection = $($(this).find('.section')).text();
+		var sectionWeight = Number($($(this).find('.weight input')).val());
+
+		sectionWeights[gradeSection] = sectionWeight;
+	});
+
+	return sectionWeights;
+};
+
+// Validates that section weights add up to 100
+var validateSectionWeights = function(sectionWeights) {
+	var counter = 0;
+
+	Object.keys(sectionWeights).forEach(function(gradeSection) {
+		counter += sectionWeights[gradeSection];
+	});
+
+	return counter == 100;
+};
+
+var updateFinalScore = function(grades, sectionWeights) {
+	var $finalScore = $('#final-score-container .score');
+
+	if (!validateSectionWeights(sectionWeights)) {
+		$finalScore.text('NaN');
+		return;
+	}
+
+	var score = 0;
+
+	Object.keys(grades).forEach(function(gradeSection) {
+		var gradeSectionTotal = getGradeSectionTotal(grades[gradeSection]);
+
+		score += gradeSectionTotal.overallPercentage * (sectionWeights[gradeSection] / 100);
+	});
+
+	$finalScore.text((score * 100).toFixed(2));
+};
+
+createRawScoreCalculator(parseGrades());
+
+$(document).on('input', '.grade-section .weight', function() {
+	updateFinalScore(parseGrades(), getSectionWeights());
+});

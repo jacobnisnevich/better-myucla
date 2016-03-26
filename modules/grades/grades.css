@@ -1,0 +1,47 @@
+#raw-score-container {
+	margin-top: 10px;
+}
+
+#raw-score-container hr {
+	margin-bottom: 0.5em;
+}
+
+#raw-score-container .grade-section {
+	margin: 10px 0;
+}
+
+.grade-section .section {
+	float: left;
+	padding: 10px 0;
+	margin-left: 10px;
+}
+
+.grade-section .weight {
+	float: right;
+	width: 50px;
+	margin-right: 20px;
+}
+
+#final-score-container {
+	margin-bottom: 5px;
+}
+
+#final-score-container .title {
+	float: left;
+	padding: 10px 0;
+	margin-left: 10px;
+}
+
+#final-score-container .score {
+	float: right;
+	padding: 10px 0;
+	margin-right: 10px;
+}
+
+.clearfix:after {
+	content: " ";
+	visibility: hidden;
+	display: block;
+	height: 0;
+	clear: both;
+}
