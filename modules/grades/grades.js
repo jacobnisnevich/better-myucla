@@ -185,7 +185,7 @@ var calculatePassingScore = function() {
 	}
 	else {
 		// calculate final score needed to pass
-		var percentNeeded = (score - passing score).toFixed(2);
+		var percentNeeded = (score - passingScore).toFixed(2);
 		var finalPercent = percentNeeded / sectionWeights['final'];
 		finalText = 'You need to get ' + (finalPercent*100).toFixed(2) + '& to pass! Good Luck!';
 	}
