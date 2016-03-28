@@ -32,8 +32,10 @@ var createRawScoreCalculator = function(grades) {
 	gradeSections += '<hr>';
 
 	gradeSections += '<div id="final-score-container" class="clearfix">';
-	gradeSections += '<div class="title">Final score:</div>';
+	gradeSections += '<div class="title">Raw score:</div>';
 	gradeSections += '<div class="score">' + (getInitialScore(grades) * 100).toFixed(2) + '</div>';
+	gradeSections += '<div class="title">Final Status:>/div>';
+	gradeSections += '<div class="status">Please insert information.</div>';
 	gradeSections += '</div>';
 
 	gradeSections += '</div>';
@@ -67,7 +69,8 @@ var parseGrades = function() {
 				}
 			} else {
 				// Skip assignments that are in excluded sections
-				if (excluded === false) {
+				// Skip assignments taht have not been graded
+				if (excluded === false || $(this).find('td')) {
 					var parsedFraction = parseGradeFraction($($(this).find('td')[1]).text());
 
 					parsedGrades[currentSection].push({
@@ -157,7 +160,7 @@ var updateFinalScore = function(grades, sectionWeights) {
 	var $finalScore = $('#final-score-container .score');
 
 	if (!validateSectionWeights(sectionWeights)) {
-		$finalScore.text('NaN');
+		$finalScore.text('Weights do not add up to 100! :/');
 		return;
 	}
 
@@ -172,10 +175,28 @@ var updateFinalScore = function(grades, sectionWeights) {
 	$finalScore.text((score * 100).toFixed(2));
 };
 
-createRawScoreCalculator(parseGrades());
+var calculatePassingScore = function() {
+	var $finalState = $('#final-score-container .status');
+	var passingScore = .70;
+	var finalText;
 
+	if (score > passingScore) {
+		finalText = 'You have already passed! YAY!';
+	}
+	else {
+		// calculate final score needed to pass
+		var percentNeeded = (score - passing score).toFixed(2);
+		var finalPercent = percentNeeded / sectionWeights['final'];
+		finalText = 'You need to get ' + (finalPercent*100).toFixed(2) + '& to pass! Good Luck!';
+	}
+
+	$finalState.text(finalText);
+}
+
+grades = parseGrades();
+createRawScoreCalculator(grades);
 $(document).on('input', '.grade-section .weight', function() {
-	updateFinalScore(parseGrades(), getSectionWeights());
+	updateFinalScore(grades, getSectionWeights());
 });
 
 // Ling 20 distribution:
