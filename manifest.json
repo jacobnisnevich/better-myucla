@@ -7,7 +7,7 @@
     {
       "matches": ["https://be.my.ucla.edu/IWE/mygrades.aspx"],
       "css": ["modules/grades/grades.css"],
-      "js": ["lib/jquery-2.1.4.min.js", "lib/react-dom.min.js", "lib/react.min.js", "modules/grades/reactgrades.js"]
+      "js": ["lib/browser.js", "lib/jquery-2.1.4.min.js", "lib/react-0.14.3.min.js", "lib/react-dom-0.14.3.min.js", "modules/grades/reactgrades.js"]
     }
   ]
 }
